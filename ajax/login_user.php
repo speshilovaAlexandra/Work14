@@ -2,7 +2,25 @@
 session_start();
 require_once("../settings/connect_datebase.php");
 
-
+$NowDate = date("Y-m-d H:i:s");
+$sql = "SELECT * FROM `acces_ip` WHERE `Ip` = '$user_ip';";
+$QueryAccess = $mysqli->query($sql);
+if($QueryAccess->num_rows > 0) {
+    $ReadAccess = $QueryAccess->fetch_assoc();
+    $EndDate = $ReadAccess["endDate"];
+    $StartDate = $ReadAccess["startDate"];
+    
+    if($StartDate == $EndDate) {
+        echo "Пользователь заблокирован";
+        exit();
+    } else {
+        $sql = "UPDATE `acces_ip` SET `startDate` = '$EndDate', `endDate` = '$NowDate' WHERE `Ip` = '$user_ip'";
+        $mysqli->query($sql);
+    }
+} else {
+    $sql = "INSERT INTO `acces_ip` (`Ip`, `startDate`, `endDate`) VALUES ('$user_ip', NULL, '$NowDate')";
+    $mysqli->query($sql);
+}
 
 $login = $_POST['login'];
 $password = $_POST['password'];
